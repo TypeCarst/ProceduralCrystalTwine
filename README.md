@@ -1,8 +1,8 @@
 # Procedural Crystal Twine
 
-This is one of my first steps in procedural generation. Crystal twines like structures are part of my fictional world and I wanted to be able to generate them for the game I'm developing in Unity3D by myself to save a bit of time and maybe bring some variety into the game world.
+This is one of my first steps in procedural generation. Crystal twines like structures are part of my fictional world. I want to generate them for the game I'm developing by myself in Unity3D to save a bit of time and maybe bring some variety into the game world. It is also quite fun to broaden my own horizon.
 
-The result should in a way like this basic sketch where the red dots are the vertices and the lines the edges:
+The result should look like this basic sketch where the red dots are the vertices and the lines the edges:
 
 <img src="https://github.com/cfloeth/ProceduralCrystalTwine/blob/main/Readme%20Images/CrystalTwine.png" alt="Basic sketch of a crystal twine" width="250"/>
 
@@ -16,3 +16,8 @@ The crystal twines should be fully procedurally generated in these details:
 - hopefully branches later on
 
 The twine should look organic.
+
+## Status ##
+- nodes have to be set manually (position, child of nodes container, radius)
+- basic seeded generation (vertex count in node neighbourhood, vertex X,Y,Z offsets)
+- gizmos for twine nodes (black) and vertices (red)
