@@ -17,6 +17,15 @@ The crystal twines should be fully procedurally generated in these details:
 
 The twine should look organic.
 
+## Basic Algorithm ##
+- place twine path nodes
+- start at top node and place vertex at the same position
+- choose next lower node
+- add some vertices around the node based on radius
+- repeat until last node
+- offset vertices
+- create mesh + material
+
 ## Status ##
 - nodes have to be set manually (position, child of nodes container, radius)
 - basic seeded generation (vertex count in node neighbourhood, vertex X,Y,Z offsets)
