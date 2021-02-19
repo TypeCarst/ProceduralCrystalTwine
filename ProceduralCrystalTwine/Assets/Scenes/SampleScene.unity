@@ -144,7 +144,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1692832203731253234, guid: 1c054b4b012a7384284cb4a99528319f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 9
+      value: 6.17
       objectReference: {fileID: 0}
     - target: {fileID: 1692832203731253234, guid: 1c054b4b012a7384284cb4a99528319f, type: 3}
       propertyPath: m_LocalPosition.z
@@ -420,7 +420,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1692832203731253234, guid: 1c054b4b012a7384284cb4a99528319f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.5
+      value: 2.69
       objectReference: {fileID: 0}
     - target: {fileID: 1692832203731253234, guid: 1c054b4b012a7384284cb4a99528319f, type: 3}
       propertyPath: m_LocalPosition.z
@@ -512,12 +512,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   twineNodeContainer: {fileID: 1440875610}
-  generationSeed: 21092015
-  minVertexAddPerNode: 5
-  maxVerticesPerNode: 40
-  maxVertexOffsetX: 0.15
-  maxVertexOffsetY: 0.5
-  maxVertexOffsetZ: 0.14
+  generationSeed: 
+  minVertexAddPerNode: 3
+  maxVerticesPerNode: 15
+  maxVertexOffsetX: 0.1
+  maxVertexOffsetY: 0.3
+  maxVertexOffsetZ: 0.1
   drawMeshGizmos: 1
 --- !u!23 &1764667971
 MeshRenderer:
@@ -585,7 +585,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1692832203731253234, guid: 1c054b4b012a7384284cb4a99528319f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 12
+      value: 8.55
       objectReference: {fileID: 0}
     - target: {fileID: 1692832203731253234, guid: 1c054b4b012a7384284cb4a99528319f, type: 3}
       propertyPath: m_LocalPosition.z

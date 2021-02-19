@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using DefaultNamespace;
+using System.Linq;
 using DefaultNamespace.Extensions;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -12,8 +12,8 @@ public class CrystalTwine : MonoBehaviour
 
     [SerializeField] private Transform twineNodeContainer;
 
-    [SerializeField, Tooltip("Seed lower than 0 gets set to -1.")]
-    private int generationSeed;
+    [SerializeField, Tooltip("An empty field will create a random seed.")]
+    private string generationSeed;
 
     [Header("Node Manipulation"),
      SerializeField,
@@ -45,7 +45,15 @@ public class CrystalTwine : MonoBehaviour
 
     private void Start()
     {
-        Generate(generationSeed < 0 ? -1 : generationSeed);
+        if (generationSeed.Length == 0)
+        {
+            string randomString = RandomString(10);
+            generationSeed = randomString;
+        }
+
+        int seed = generationSeed.GetHashCode();
+        
+        Generate(seed);
     }
 
     private void Generate(int seed)
@@ -84,20 +92,18 @@ public class CrystalTwine : MonoBehaviour
                 v++;
             }
 
-            // the bottom vertices will be plane
-            if (i >= twineNodes.Length - 1)
-            {
-                continue;
-            }
-
             // TODO: apply offsets in local space
             // apply random vertex offsets
             for (int k = 0; k < nodeVertexCount; k++)
             {
+                bool isBottomNode = i >= twineNodes.Length - 1;
+
+                float offsetX = Random.Range(-maxVertexOffsetX, maxVertexOffsetX);
+                float offsetY = isBottomNode ? 0 : Random.Range(-maxVertexOffsetY, maxVertexOffsetY);
+                float offsetZ = Random.Range(-maxVertexOffsetZ, maxVertexOffsetZ);
+
                 // TODO: maybe apply offset values relatively to node radius
-                _vertices[vertexRangeIndex + k] += new Vector3(Random.Range(-maxVertexOffsetX, maxVertexOffsetX),
-                                                               Random.Range(-maxVertexOffsetY, maxVertexOffsetY),
-                                                               Random.Range(-maxVertexOffsetZ, maxVertexOffsetZ));
+                _vertices[vertexRangeIndex + k] += new Vector3(offsetX, offsetY, offsetZ);
             }
         }
     }
@@ -143,5 +149,13 @@ public class CrystalTwine : MonoBehaviour
         {
             Gizmos.DrawSphere(vertex, 0.075f);
         }
+    }
+    
+    private string RandomString(int length)
+    {
+        System.Random random = new System.Random();
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        return new string(Enumerable.Repeat(chars, length)
+                                    .Select(s => s[random.Next(s.Length)]).ToArray());
     }
 }
