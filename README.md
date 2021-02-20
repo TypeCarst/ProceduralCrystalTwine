@@ -1,6 +1,6 @@
 # Procedural Crystal Twine
 
-This is one of my first steps in procedural generation. Crystal twines like structures are part of my fictional world. I want to generate them for the game I'm developing by myself in Unity3D to save a bit of time and maybe bring some variety into the game world. It is also quite fun to broaden my own horizon.
+This is one of my first steps into procedural generation. Crystal twines like structures are part of my fictional world. I want to generate them for the game I'm developing by myself in Unity3D to save a bit of time and maybe bring some variety into the game world. It is also quite fun to broaden my own horizon.
 
 The result should look like this basic sketch where the red dots are the vertices and the lines the edges:
 
