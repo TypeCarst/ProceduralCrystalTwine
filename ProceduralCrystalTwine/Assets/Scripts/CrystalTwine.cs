@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using DefaultNamespace.Extensions;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -10,27 +9,33 @@ public class CrystalTwine : MonoBehaviour
 {
 #region Serialized Fields
 
-    [SerializeField] private Transform twineNodeContainer;
+    [SerializeField]
+    private Transform twineNodeContainer;
 
     [SerializeField, Tooltip("An empty field will create a random seed.")]
     private string generationSeed;
 
-    [Header("Node Manipulation"),
-     SerializeField,
-     Tooltip("Sets the minimum number of additional vertices a node will have in its neighbourhood compared to the " +
-             "node above it. The top node will have one vertex without offset.")]
+    [Header("Node Manipulation")]
+    [SerializeField, Tooltip("Sets the minimum number of additional vertices a node will have in its neighbourhood " +
+                             "compared to the node above it. The top node will have one vertex without offset.")]
     private int minVertexAddPerNode;
 
     [SerializeField, Tooltip("No limit when set to 0.")]
     private int maxVerticesPerNode;
 
-    [Header("Vertex Manipulation")] [SerializeField]
+    [Header("Vertex Manipulation")]
+    [SerializeField]
     private float maxVertexOffsetX;
 
-    [SerializeField] private float maxVertexOffsetY;
-    [SerializeField] private float maxVertexOffsetZ;
+    [SerializeField]
+    private float maxVertexOffsetY;
 
-    [Header("Debugging")] [SerializeField] private bool drawMeshGizmos;
+    [SerializeField]
+    private float maxVertexOffsetZ;
+
+    [Header("Debugging")]
+    [SerializeField]
+    private bool drawMeshGizmos;
 
 #endregion Serialized Fields
 
@@ -43,18 +48,36 @@ public class CrystalTwine : MonoBehaviour
 
 #endregion Private variables
 
+#region MonoBevahiour
+
     private void Start()
     {
         if (generationSeed.Length == 0)
         {
-            string randomString = RandomString(10);
-            generationSeed = randomString;
+            string randomSeed = Helpers.RandomString(10);
+            generationSeed = randomSeed;
         }
 
-        int seed = generationSeed.GetHashCode();
-        
-        Generate(seed);
+        Generate(generationSeed.GetHashCode());
     }
+    
+    private void OnDrawGizmos()
+    {
+        if (_vertices == null || _vertices.Length == 0 || !drawMeshGizmos)
+        {
+            return;
+        }
+
+        Gizmos.color = Color.red;
+        foreach (Vector3 vertex in _vertices)
+        {
+            Gizmos.DrawSphere(vertex, 0.075f);
+        }
+    }
+
+#endregion MonoBevahiour
+
+#region Mesh Generation
 
     private void Generate(int seed)
     {
@@ -72,10 +95,12 @@ public class CrystalTwine : MonoBehaviour
                                                                   : maxVerticesPerNode);
 
         int v = 0;
-        _vertices      = new Vector3[vertexCountUnderTop];
+        _vertices = new Vector3[vertexCountUnderTop];
+
+        // top node has only one vertex at its center
         _vertices[v++] = twineNodes[0].transform.position;
 
-        // calculate base positions for all vertices near the other nodes
+        // calculate positions for vertices near other nodes
         for (int i = 1; i < twineNodes.Length; i++)
         {
             int vertexRangeIndex = v;
@@ -92,7 +117,7 @@ public class CrystalTwine : MonoBehaviour
                 v++;
             }
 
-            // TODO: apply offsets in local space
+            // TODO: apply offsets in local space to use node up vector
             // apply random vertex offsets
             for (int k = 0; k < nodeVertexCount; k++)
             {
@@ -106,6 +131,8 @@ public class CrystalTwine : MonoBehaviour
                 _vertices[vertexRangeIndex + k] += new Vector3(offsetX, offsetY, offsetZ);
             }
         }
+
+        _twineMesh.vertices = _vertices;
     }
 
     /// <summary>
@@ -117,8 +144,9 @@ public class CrystalTwine : MonoBehaviour
     /// <param name="addedVerticesPerNode">Minimum number of vertices to be added to </param>
     /// <param name="maximumVerticesPerNode">Maximum of vertices per node</param>
     /// <returns>Sum of all vertices</returns>
-    private int CalculateVertexCountPerNode(IList<int> vertexCountPerNode, int addedVerticesPerNode,
-                                            int        maximumVerticesPerNode)
+    private int CalculateVertexCountPerNode
+    (IList<int> vertexCountPerNode, int addedVerticesPerNode,
+     int        maximumVerticesPerNode)
     {
         vertexCountPerNode[0] = 1;
         int vertexCount = 1;
@@ -137,25 +165,5 @@ public class CrystalTwine : MonoBehaviour
         return vertexCount;
     }
 
-    private void OnDrawGizmos()
-    {
-        if (_vertices == null || _vertices.Length <= 0 || !drawMeshGizmos)
-        {
-            return;
-        }
-
-        Gizmos.color = Color.red;
-        foreach (Vector3 vertex in _vertices)
-        {
-            Gizmos.DrawSphere(vertex, 0.075f);
-        }
-    }
-    
-    private string RandomString(int length)
-    {
-        System.Random random = new System.Random();
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        return new string(Enumerable.Repeat(chars, length)
-                                    .Select(s => s[random.Next(s.Length)]).ToArray());
-    }
+#endregion Mesh Generation
 }
