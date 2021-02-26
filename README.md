@@ -13,6 +13,7 @@ The crystal twines should be fully procedurally generated in these details:
 - vertex count in each node neighbourhood (the mesh is divided into ring areas near each node)
 - vertex position offsets
 - material
+- export function
 - hopefully branches later on
 
 The twine should look organic.
@@ -33,6 +34,7 @@ The twine should look organic.
 - custom editor for runtime mesh updates
 
 ## Next Steps ##
-- creating the mesh (a mesh gets created, but triangle indices aren't correctly chosen for now. 'Christmas tree'-festure)
-- better calculation of vertex count per node (based on node radius of predecessor and successor nodes)
+- creating the mesh (a mesh gets created, but triangle indices aren't correctly chosen for now. 'snowy tree'-feature)
+- applying offsets for vertices based on node orientation and radius
+- calculating node radius based on set radius instead of chosing random values (should look a bit more organic)
 - considering node orientation while placing vertices and offsetting them
