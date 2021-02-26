@@ -30,8 +30,9 @@ The twine should look organic.
 - nodes have to be set manually (position, child of nodes container, radius)
 - basic seeded generation (vertex count in node neighbourhood, vertex X,Y,Z offsets)
 - gizmos for twine nodes (black) and vertices (red)
+- custom editor for runtime mesh updates
 
 ## Next Steps ##
-- creating the mesh
+- creating the mesh (a mesh gets created, but triangle indices aren't correctly chosen for now. 'Christmas tree'-festure)
 - better calculation of vertex count per node (based on node radius of predecessor and successor nodes)
 - considering node orientation while placing vertices and offsetting them
