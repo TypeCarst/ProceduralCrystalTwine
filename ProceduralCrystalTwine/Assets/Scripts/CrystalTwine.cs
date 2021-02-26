@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using DefaultNamespace.Extensions;
 using UnityEngine;
@@ -16,7 +17,7 @@ public class CrystalTwine : MonoBehaviour
     private string generationSeed;
 
     [SerializeField]
-    private int minVertexAddPerNode;
+    private float vertexDensityOnUnitCircle;
 
     [SerializeField]
     private int maxVerticesPerNode;
@@ -27,9 +28,6 @@ public class CrystalTwine : MonoBehaviour
     [SerializeField]
     private bool drawMeshGizmos;
 
-    [SerializeField]
-    private bool generateMesh;
-
 #endregion Serialized Fields
 
 #region Private variables
@@ -38,7 +36,6 @@ public class CrystalTwine : MonoBehaviour
 
     private Vector3[] _vertices;
     private int[]     _verticesPerNode;
-    private int[]     _triangleIndices;
 
 #endregion Private variables
 
@@ -46,13 +43,7 @@ public class CrystalTwine : MonoBehaviour
 
     private void Start()
     {
-        if (generationSeed.Length == 0)
-        {
-            string randomSeed = Helpers.RandomString(10);
-            generationSeed = randomSeed;
-        }
-
-        Generate(generationSeed.GetHashCode());
+        CreateNewCrystalTwine();
     }
 
     private void OnDrawGizmos()
@@ -73,34 +64,72 @@ public class CrystalTwine : MonoBehaviour
 
 #region Mesh Generation
 
-    public void CreateNewMesh()
+    public void CreateNewCrystalTwine()
     {
-        Start();
+        if (generationSeed.Length == 0)
+        {
+            string randomSeed = Helpers.RandomString(10);
+            generationSeed = randomSeed;
+        }
+
+        GenerateCrystalTwine(generationSeed.GetHashCode());
     }
 
-    private void Generate(int seed)
+    private void GenerateCrystalTwine(int seed)
     {
         Random.InitState(seed);
 
         MeshFilter meshFilter = GetComponent<MeshFilter>();
         meshFilter.mesh.Clear();
-        meshFilter.mesh = _twineMesh = new Mesh();
-        _twineMesh.name = "Crystal Twine";
+
+        _twineMesh      = new Mesh {name = "Crystal Twine"};
+        meshFilter.mesh = _twineMesh;
 
         TwineNode[] twineNodes = twineNodeContainer.GetComponentsInChildren<TwineNode>();
 
         _verticesPerNode = new int[twineNodes.Length];
-        int vertexCountUnderTop = CalculateVertexCountPerNode(_verticesPerNode, minVertexAddPerNode,
-                                                              maxVerticesPerNode == 0
+        int vertexCountUnderTop = CalculateVertexCountPerNode(_verticesPerNode, twineNodes,
+                                                              maxVerticesPerNode < 1
                                                                   ? int.MaxValue
                                                                   : maxVerticesPerNode);
 
-        int nodeVertexIndex = 0;
-        _vertices = new Vector3[vertexCountUnderTop];
-        float[] vertexCircularRotation = new float[vertexCountUnderTop];
+        _vertices           = CalculateVertexPositions(twineNodes, vertexCountUnderTop);
+        _twineMesh.vertices = _vertices;
+
+        GenerateMesh(vertexCountUnderTop);
+    }
+
+    private void GenerateMesh(int vertexCountUnderTop)
+    {
+        int   nodeVertexIndex = 0;
+        int[] triangleIndices = new int[3 * vertexCountUnderTop];
+
+        for (int i = 1; i < _verticesPerNode.Length; i++)
+        {
+            int nodeVertexCount = _verticesPerNode[i];
+            for (int j = 0; j < nodeVertexCount; j++)
+            {
+                triangleIndices[3 * (j + nodeVertexIndex)]     = 0;
+                triangleIndices[3 * (j + nodeVertexIndex) + 1] = nodeVertexIndex + j + 1;
+                triangleIndices[3 * (j + nodeVertexIndex) + 2] = nodeVertexIndex + (j + 1) % nodeVertexCount + 1;
+            }
+
+            nodeVertexIndex += nodeVertexCount;
+        }
+
+        _twineMesh.triangles = triangleIndices;
+        _twineMesh.RecalculateTangents();
+        _twineMesh.RecalculateNormals();
+    }
+
+    private Vector3[] CalculateVertexPositions(TwineNode[] twineNodes, int vertexCountUnderTop)
+    {
+        int       nodeVertexIndex        = 0;
+        Vector3[] vertices               = new Vector3[vertexCountUnderTop];
+        float[]   vertexCircularRotation = new float[vertexCountUnderTop];
 
         // top node has only one vertex at its center
-        _vertices[nodeVertexIndex++] = twineNodes[0].transform.position;
+        vertices[nodeVertexIndex++] = twineNodes[0].transform.position;
 
         // calculate positions for vertices near other nodes
         for (int i = 1; i < twineNodes.Length; i++)
@@ -113,12 +142,12 @@ public class CrystalTwine : MonoBehaviour
             float     circularOffsetPerVertex     = circularVertexOffset * circularOffsetToPredecessor / 2;
 
             // TODO: rotate axis and first vertex relatively to orientation of predecessor and successor nodes
-            _vertices[nodeVertexIndex++] = curNode.transform.position + Vector3.forward * curNode.BaseRadius;
+            vertices[nodeVertexIndex++] = curNode.transform.position + Vector3.forward * curNode.BaseRadius;
             for (int j = 1; j < nodeVertexCount; j++)
             {
                 float circularOffset = circularOffsetToPredecessor +
                                        Random.Range(-circularOffsetPerVertex, circularOffsetPerVertex);
-                _vertices[nodeVertexIndex] = _vertices[nodeVertexIndex - 1].Rotated(0, circularOffset, 0, Vector3.up);
+                vertices[nodeVertexIndex] = vertices[nodeVertexIndex - 1].Rotated(0, circularOffset, 0, Vector3.up);
 
                 vertexCircularRotation[nodeVertexIndex] = circularOffset;
                 nodeVertexIndex++;
@@ -128,30 +157,7 @@ public class CrystalTwine : MonoBehaviour
             // TODO: apply vertex offset based on node up vector
         }
 
-        _twineMesh.vertices = _vertices;
-
-        if (generateMesh)
-        {
-            nodeVertexIndex  = 0;
-            _triangleIndices = new int[3 * vertexCountUnderTop];
-
-            for (int i = 1; i < _verticesPerNode.Length; i++)
-            {
-                int nodeVertexCount = _verticesPerNode[i];
-                for (int j = 0; j < nodeVertexCount; j++)
-                {
-                    _triangleIndices[3 * (j + nodeVertexIndex)]     = 0;
-                    _triangleIndices[3 * (j + nodeVertexIndex) + 1] = nodeVertexIndex + j + 1;
-                    _triangleIndices[3 * (j + nodeVertexIndex) + 2] = nodeVertexIndex + (j + 1) % nodeVertexCount + 1;
-                }
-
-                nodeVertexIndex += nodeVertexCount;
-            }
-
-            _twineMesh.triangles = _triangleIndices;
-            _twineMesh.RecalculateTangents();
-            _twineMesh.RecalculateNormals();
-        }
+        return vertices;
     }
 
     /// <summary>
@@ -160,23 +166,42 @@ public class CrystalTwine : MonoBehaviour
     /// </summary>
     /// <param name="vertexCountPerNode">Array for a vertex count for each twine node. The first node will get
     /// initialized to 1.</param>
-    /// <param name="addedVerticesPerNode">Minimum number of vertices to be added to </param>
+    /// <param name="twineNodes">Array of twine nodes with radius (might be negative for rng)</param>
     /// <param name="maximumVerticesPerNode">Maximum of vertices per node</param>
     /// <returns>Sum of all vertices</returns>
     private int CalculateVertexCountPerNode
-    (IList<int> vertexCountPerNode, int addedVerticesPerNode,
-     int        maximumVerticesPerNode)
+        (IList<int> vertexCountPerNode, TwineNode[] twineNodes, int maximumVerticesPerNode)
     {
         vertexCountPerNode[0] = 1;
         int vertexCount = 1;
 
-        for (int i = 1; i < vertexCountPerNode.Count; i++)
+        for (int i = 1; i < twineNodes.Length; i++)
         {
-            // TODO: use delta between two node radius to determine if less vertices should be used instead of more
-            int nodeVertexCount = vertexCountPerNode[i - 1] + addedVerticesPerNode + Random.Range(0, 3);
-            nodeVertexCount = nodeVertexCount > maximumVerticesPerNode
-                ? maximumVerticesPerNode
-                : nodeVertexCount;
+            int   nodeVertexCount;
+            float nodeRadius = twineNodes[i].BaseRadius;
+
+            if (nodeRadius < 0)
+            {
+                nodeRadius               = Random.Range(0.1f, 1);
+                twineNodes[i].BaseRadius = nodeRadius;
+            }
+
+            if (Math.Abs(nodeRadius) < float.Epsilon)
+            {
+                nodeVertexCount = 1;
+            } else
+            {
+                nodeVertexCount = (int) (twineNodes[i].BaseRadius * vertexDensityOnUnitCircle);
+
+                nodeVertexCount = nodeVertexCount > maximumVerticesPerNode
+                    ? maximumVerticesPerNode
+                    : nodeVertexCount;
+
+                nodeVertexCount = nodeVertexCount < 3
+                    ? 3
+                    : nodeVertexCount;
+            }
+
             vertexCountPerNode[i] =  nodeVertexCount;
             vertexCount           += nodeVertexCount;
         }

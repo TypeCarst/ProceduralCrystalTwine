@@ -2,9 +2,7 @@ using UnityEngine;
 
 public class TwineNode : MonoBehaviour
 {
-    [SerializeField] private float baseRadius;
-
-    public float BaseRadius => baseRadius;
+    public float BaseRadius;
 
     private void OnDrawGizmos()
     {
