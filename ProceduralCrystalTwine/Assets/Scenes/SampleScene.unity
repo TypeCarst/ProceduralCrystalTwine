@@ -408,7 +408,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 590279818177122524, guid: 1c054b4b012a7384284cb4a99528319f, type: 3}
       propertyPath: baseRadius
-      value: 0.65
+      value: 0.35
       objectReference: {fileID: 0}
     - target: {fileID: 1692832203731253234, guid: 1c054b4b012a7384284cb4a99528319f, type: 3}
       propertyPath: m_RootOrder
@@ -514,11 +514,10 @@ MonoBehaviour:
   twineNodeContainer: {fileID: 1440875610}
   generationSeed: 
   minVertexAddPerNode: 3
-  maxVerticesPerNode: 15
-  maxVertexOffsetX: 0.1
-  maxVertexOffsetY: 0.3
-  maxVertexOffsetZ: 0.1
-  drawMeshGizmos: 1
+  maxVerticesPerNode: 10
+  circularVertexOffset: 0.4
+  drawMeshGizmos: 0
+  generateMesh: 1
 --- !u!23 &1764667971
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -538,7 +537,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: 99a0dd2e6df747540bd7890cae5ea695, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -639,7 +638,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 590279818177122524, guid: 1c054b4b012a7384284cb4a99528319f, type: 3}
       propertyPath: baseRadius
-      value: 1
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 1692832203731253234, guid: 1c054b4b012a7384284cb4a99528319f, type: 3}
       propertyPath: m_RootOrder
